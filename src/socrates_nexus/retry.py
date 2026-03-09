@@ -1,11 +1,56 @@
-"""Retry logic with exponential backoff."""
+"""Retry logic with exponential backoff for LLM API calls."""
 
-import time
+import functools
 import random
-from typing import Callable, Any, Optional
-from functools import wraps
+import time
+from dataclasses import dataclass
+from typing import Callable, Type, Tuple, Any
 
-from .exceptions import RateLimitError
+from .exceptions import (
+    RateLimitError,
+    TimeoutError as NexusTimeoutError,
+    ProviderError,
+)
+
+
+@dataclass
+class RetryConfig:
+    """Configuration for retry behavior."""
+
+    max_attempts: int = 3
+    base_delay: float = 1.0
+    max_delay: float = 60.0
+    exponential_base: float = 2.0
+    jitter: bool = True
+    retry_on_rate_limit: bool = True
+    retry_on_timeout: bool = True
+    retry_on_server_error: bool = True
+    retryable_exceptions: Tuple[Type[Exception], ...] = (
+        RateLimitError,
+        NexusTimeoutError,
+    )
+
+
+def exponential_backoff(attempt: int, config: RetryConfig) -> float:
+    """
+    Calculate delay for exponential backoff with optional jitter.
+
+    Args:
+        attempt: Current attempt number (0-indexed)
+        config: Retry configuration
+
+    Returns:
+        Delay in seconds
+    """
+    delay = config.base_delay * (config.exponential_base ** attempt)
+    delay = min(delay, config.max_delay)
+
+    if config.jitter:
+        # Add jitter: delay * (0.5 + random() * 0.5)
+        jitter_factor = 0.5 + random.random() * 0.5
+        delay *= jitter_factor
+
+    return delay
 
 
 def retry_with_backoff(
@@ -16,7 +61,7 @@ def retry_with_backoff(
     jitter: bool = True,
 ):
     """
-    Decorator for retrying with exponential backoff.
+    Decorator for retrying with exponential backoff (legacy interface).
 
     Args:
         max_attempts: Maximum number of retry attempts
@@ -27,7 +72,7 @@ def retry_with_backoff(
     """
 
     def decorator(func: Callable) -> Callable:
-        @wraps(func)
+        @functools.wraps(func)
         def wrapper(*args, **kwargs) -> Any:
             delay = initial_delay
             last_exception = None
@@ -35,7 +80,7 @@ def retry_with_backoff(
             for attempt in range(max_attempts):
                 try:
                     return func(*args, **kwargs)
-                except (RateLimitError, TimeoutError, ConnectionError) as e:
+                except (RateLimitError, NexusTimeoutError, ConnectionError) as e:
                     last_exception = e
                     if attempt < max_attempts - 1:
                         # Add jitter if enabled
@@ -60,32 +105,3 @@ def retry_with_backoff(
         return wrapper
 
     return decorator
-
-
-def exponential_backoff(
-    attempt: int,
-    backoff_factor: float = 2.0,
-    initial_delay: float = 1.0,
-    max_delay: float = 32.0,
-    jitter: bool = True,
-) -> float:
-    """
-    Calculate exponential backoff delay.
-
-    Args:
-        attempt: Attempt number (0-indexed)
-        backoff_factor: Multiplier for each retry
-        initial_delay: Initial delay in seconds
-        max_delay: Maximum delay in seconds
-        jitter: Whether to add random jitter
-
-    Returns:
-        Delay in seconds
-    """
-    delay = initial_delay * (backoff_factor ** attempt)
-    delay = min(delay, max_delay)
-
-    if jitter:
-        delay = delay * (0.5 + random.random())
-
-    return delay

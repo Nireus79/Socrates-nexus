@@ -5,6 +5,37 @@ from dataclasses import dataclass, field
 from datetime import datetime
 
 
+# Provider pricing: cost per 1,000,000 tokens (millions)
+PROVIDER_PRICING = {
+    "anthropic": {
+        "claude-haiku-4-5-20251001": {"input": 0.80, "output": 4.00},
+        "claude-3-5-sonnet-20241022": {"input": 3.00, "output": 15.00},
+        "claude-opus-4-20250514": {"input": 15.00, "output": 75.00},
+        "claude-3-sonnet-20240229": {"input": 3.00, "output": 15.00},
+        "claude-3-opus-20240229": {"input": 15.00, "output": 75.00},
+        "claude-3-haiku-20240307": {"input": 0.25, "output": 1.25},
+    },
+    "openai": {
+        "gpt-4-turbo": {"input": 10.00, "output": 30.00},
+        "gpt-4": {"input": 30.00, "output": 60.00},
+        "gpt-3.5-turbo": {"input": 0.50, "output": 1.50},
+        "gpt-4o": {"input": 2.50, "output": 10.00},
+    },
+    "google": {
+        "gemini-1.5-pro": {"input": 1.25, "output": 5.00},
+        "gemini-1.5-flash": {"input": 0.075, "output": 0.30},
+        "gemini-pro": {"input": 0.50, "output": 1.50},
+    },
+    "ollama": {
+        # Local models are free
+        "llama2": {"input": 0.0, "output": 0.0},
+        "mistral": {"input": 0.0, "output": 0.0},
+        "neural-chat": {"input": 0.0, "output": 0.0},
+        "orca-mini": {"input": 0.0, "output": 0.0},
+    },
+}
+
+
 @dataclass
 class TokenUsage:
     """Token usage tracking across all providers."""
@@ -16,6 +47,7 @@ class TokenUsage:
     provider: str = ""
     model: str = ""
     timestamp: datetime = field(default_factory=datetime.utcnow)
+    latency_ms: float = 0.0  # Request latency in milliseconds
 
     @property
     def total_cost(self) -> float:
