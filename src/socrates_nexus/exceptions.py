@@ -18,6 +18,10 @@ class LLMError(Exception):
         super().__init__(self.message)
 
 
+# Alias for consistency with library name
+NexusError = LLMError
+
+
 class RateLimitError(LLMError):
     """Raised when rate limit is exceeded (HTTP 429)."""
 

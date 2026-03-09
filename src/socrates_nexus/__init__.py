@@ -18,10 +18,14 @@ from .async_client import AsyncLLMClient
 from .models import ChatResponse, TokenUsage, LLMConfig
 from .exceptions import (
     LLMError,
+    NexusError,
     RateLimitError,
+    AuthenticationError,
     InvalidAPIKeyError,
+    TimeoutError,
     ContextLengthExceededError,
     ModelNotFoundError,
+    ProviderError,
 )
 
 __all__ = [
@@ -30,9 +34,14 @@ __all__ = [
     "ChatResponse",
     "TokenUsage",
     "LLMConfig",
+    # Exceptions
     "LLMError",
+    "NexusError",
     "RateLimitError",
+    "AuthenticationError",
     "InvalidAPIKeyError",
+    "TimeoutError",
     "ContextLengthExceededError",
     "ModelNotFoundError",
+    "ProviderError",
 ]
