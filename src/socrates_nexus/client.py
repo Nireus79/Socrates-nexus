@@ -1,7 +1,7 @@
 """Synchronous LLM client for Socrates Nexus."""
 
 import hashlib
-from typing import Optional, Callable, Dict, Any
+from typing import Optional, Callable
 
 from .models import ChatResponse, LLMConfig, UsageStats, TokenUsage
 from .exceptions import ConfigurationError, ProviderError

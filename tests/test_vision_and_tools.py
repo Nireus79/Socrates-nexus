@@ -1,10 +1,8 @@
 """Tests for vision models and function calling."""
 
-import pytest
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 from socrates_nexus.models import (
-    LLMConfig,
     ChatResponse,
     TokenUsage,
     ImageContent,
@@ -19,7 +17,6 @@ from socrates_nexus.utils.images import (
     detect_media_type,
     validate_image_format,
     is_image_url,
-    is_image_path,
 )
 
 

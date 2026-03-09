@@ -1,6 +1,5 @@
 """Tests for exception hierarchy and error handling."""
 
-import pytest
 from socrates_nexus.exceptions import (
     LLMError,
     RateLimitError,

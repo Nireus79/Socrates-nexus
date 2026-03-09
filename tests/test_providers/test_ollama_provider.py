@@ -6,9 +6,6 @@ from unittest.mock import Mock, patch, AsyncMock
 from socrates_nexus.models import LLMConfig, ChatResponse, TokenUsage
 from socrates_nexus.providers.ollama import OllamaProvider
 from socrates_nexus.exceptions import (
-    RateLimitError,
-    AuthenticationError,
-    InvalidRequestError,
     ProviderError,
 )
 
@@ -139,7 +136,7 @@ class TestOllamaChat:
         )
         provider = OllamaProvider(config)
 
-        response = provider.chat("Message", temperature=0.2)
+        provider.chat("Message", temperature=0.2)
 
         call_kwargs = mock_client.chat.call_args[1]
         assert "options" in call_kwargs
@@ -169,7 +166,7 @@ class TestOllamaChat:
         callback = Mock()
         provider.add_usage_callback(callback)
 
-        response = provider.chat("Message")
+        provider.chat("Message")
 
         callback.assert_called_once()
         usage_arg = callback.call_args[0][0]
@@ -197,7 +194,7 @@ class TestOllamaChat:
         )
         provider = OllamaProvider(config)
 
-        response = provider.chat("Message", top_p=0.8)
+        provider.chat("Message", top_p=0.8)
 
         call_kwargs = mock_client.chat.call_args[1]
         assert "options" in call_kwargs

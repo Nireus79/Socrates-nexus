@@ -1,6 +1,5 @@
 """Tests for data models and cost calculation."""
 
-import pytest
 from datetime import datetime
 from socrates_nexus.models import TokenUsage, ChatResponse, UsageStats, LLMConfig
 from socrates_nexus.models import PROVIDER_PRICING

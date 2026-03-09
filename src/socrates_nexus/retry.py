@@ -9,7 +9,6 @@ from typing import Callable, Type, Tuple, Any
 from .exceptions import (
     RateLimitError,
     TimeoutError as NexusTimeoutError,
-    ProviderError,
 )
 
 

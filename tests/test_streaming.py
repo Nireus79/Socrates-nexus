@@ -1,7 +1,7 @@
 """Tests for streaming functionality."""
 
 import pytest
-from unittest.mock import Mock, AsyncMock, call
+from unittest.mock import Mock, AsyncMock
 
 from socrates_nexus.streaming import StreamHandler, StreamBuffer, AsyncStreamHandler
 

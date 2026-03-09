@@ -89,7 +89,6 @@ class AsyncStreamHandler:
                 try:
                     # Support both async and sync callbacks
                     if callable(self.on_chunk):
-                        import asyncio
                         import inspect
 
                         if inspect.iscoroutinefunction(self.on_chunk):

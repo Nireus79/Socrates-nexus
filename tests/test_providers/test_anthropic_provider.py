@@ -11,8 +11,7 @@ Comprehensive tests for AnthropicProvider implementation covering:
 """
 
 import pytest
-from unittest.mock import Mock, patch, AsyncMock, MagicMock, call
-import asyncio
+from unittest.mock import Mock, patch, AsyncMock, MagicMock
 
 from socrates_nexus.models import LLMConfig, ChatResponse, TokenUsage
 from socrates_nexus.providers.anthropic import AnthropicProvider
@@ -196,7 +195,7 @@ class TestAnthropicChat:
         )
         provider = AnthropicProvider(config)
 
-        response = provider.chat("Message", temperature=0.2)
+        provider.chat("Message", temperature=0.2)
 
         # Verify temperature was passed to API
         call_kwargs = mock_client.messages.create.call_args[1]
@@ -223,7 +222,7 @@ class TestAnthropicChat:
         )
         provider = AnthropicProvider(config)
 
-        response = provider.chat("Message", max_tokens=512)
+        provider.chat("Message", max_tokens=512)
 
         call_kwargs = mock_client.messages.create.call_args[1]
         assert call_kwargs["max_tokens"] == 512
@@ -250,7 +249,7 @@ class TestAnthropicChat:
         )
         provider = AnthropicProvider(config)
 
-        response = provider.chat("Message")
+        provider.chat("Message")
 
         call_kwargs = mock_client.messages.create.call_args[1]
         assert call_kwargs["max_tokens"] == 2048
@@ -277,7 +276,7 @@ class TestAnthropicChat:
         )
         provider = AnthropicProvider(config)
 
-        response = provider.chat("Message")
+        provider.chat("Message")
 
         call_kwargs = mock_client.messages.create.call_args[1]
         assert call_kwargs["max_tokens"] == 4096
@@ -306,7 +305,7 @@ class TestAnthropicChat:
         callback = Mock()
         provider.add_usage_callback(callback)
 
-        response = provider.chat("Message")
+        provider.chat("Message")
 
         callback.assert_called_once()
         usage_arg = callback.call_args[0][0]
@@ -515,7 +514,7 @@ class TestAnthropicStream:
         provider = AnthropicProvider(config)
 
         callback = Mock()
-        response = provider.stream("Message", on_chunk=callback)
+        provider.stream("Message", on_chunk=callback)
 
         # Callback should be called 3 times
         assert callback.call_count == 3

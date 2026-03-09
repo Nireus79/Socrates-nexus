@@ -8,7 +8,7 @@ Tests for provider functionality shared across all implementations:
 """
 
 import pytest
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import Mock
 import hashlib
 
 from socrates_nexus.models import LLMConfig, TokenUsage, PROVIDER_PRICING

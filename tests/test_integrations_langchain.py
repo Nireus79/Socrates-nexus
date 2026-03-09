@@ -4,8 +4,7 @@ Tests for LangChain Integration.
 Tests for SocratesNexusLLM - LangChain integration with Socrates Nexus.
 """
 
-import pytest
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import Mock, patch
 from socrates_nexus.integrations.langchain import SocratesNexusLLM
 from socrates_nexus import ChatResponse, TokenUsage
 

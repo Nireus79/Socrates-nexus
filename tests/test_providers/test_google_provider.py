@@ -8,8 +8,6 @@ from socrates_nexus.providers.google import GoogleProvider
 from socrates_nexus.exceptions import (
     RateLimitError,
     AuthenticationError,
-    InvalidRequestError,
-    ProviderError,
 )
 
 
@@ -110,7 +108,7 @@ class TestGoogleChat:
         config = LLMConfig(provider="google", model="gemini-1.5-pro", api_key="test-key")
         provider = GoogleProvider(config)
 
-        response = provider.chat("Message", temperature=0.2)
+        provider.chat("Message", temperature=0.2)
 
         call_kwargs = mock_model.generate_content.call_args[1]
         assert call_kwargs["generation_config"]["temperature"] == 0.2
@@ -137,7 +135,7 @@ class TestGoogleChat:
         callback = Mock()
         provider.add_usage_callback(callback)
 
-        response = provider.chat("Message")
+        provider.chat("Message")
 
         callback.assert_called_once()
         usage_arg = callback.call_args[0][0]

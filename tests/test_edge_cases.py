@@ -1,12 +1,10 @@
 """Tests for edge cases and configuration validation."""
 
 import pytest
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import patch
 from socrates_nexus.models import LLMConfig, ChatResponse, TokenUsage
 from socrates_nexus.client import LLMClient
-from socrates_nexus.providers.base import BaseProvider
 from socrates_nexus.exceptions import (
-    ConfigurationError,
     ProviderError,
     RateLimitError,
     AuthenticationError,

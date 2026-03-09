@@ -1,7 +1,7 @@
 """Tests for LLM client integration with providers."""
 
 import pytest
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import Mock, patch
 
 from socrates_nexus.client import LLMClient
 from socrates_nexus.models import LLMConfig, ChatResponse, TokenUsage, UsageStats
@@ -153,7 +153,7 @@ class TestChatIntegration:
         mock_chat.return_value = mock_response
 
         client = LLMClient(provider="anthropic", model="claude-3", api_key="test")
-        response = client.chat("Message", temperature=0.5, max_tokens=100)
+        client.chat("Message", temperature=0.5, max_tokens=100)
 
         mock_chat.assert_called_once_with("Message", temperature=0.5, max_tokens=100)
 

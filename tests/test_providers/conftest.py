@@ -1,7 +1,7 @@
 """Fixtures for provider tests."""
 
 import sys
-from unittest.mock import Mock, AsyncMock, MagicMock
+from unittest.mock import Mock, MagicMock
 import pytest
 
 

@@ -8,7 +8,6 @@ from socrates_nexus.providers.openai import OpenAIProvider
 from socrates_nexus.exceptions import (
     RateLimitError,
     AuthenticationError,
-    InvalidRequestError,
     ProviderError,
 )
 
@@ -114,7 +113,7 @@ class TestOpenAIChat:
         config = LLMConfig(provider="openai", model="gpt-4", api_key="sk-test")
         provider = OpenAIProvider(config)
 
-        response = provider.chat("Message", temperature=0.2, max_tokens=512)
+        provider.chat("Message", temperature=0.2, max_tokens=512)
 
         call_kwargs = mock_client.chat.completions.create.call_args[1]
         assert call_kwargs["temperature"] == 0.2
@@ -139,7 +138,7 @@ class TestOpenAIChat:
         callback = Mock()
         provider.add_usage_callback(callback)
 
-        response = provider.chat("Message")
+        provider.chat("Message")
 
         callback.assert_called_once()
         usage_arg = callback.call_args[0][0]

@@ -1,9 +1,8 @@
 """Base provider interface for Socrates Nexus."""
 
 import hashlib
-import time
 from abc import ABC, abstractmethod
-from typing import Optional, Callable, Any
+from typing import Optional, Callable
 
 from ..models import ChatResponse, TokenUsage, LLMConfig, PROVIDER_PRICING
 from ..exceptions import ProviderError

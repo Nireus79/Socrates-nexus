@@ -1,6 +1,5 @@
 """Tests for response caching functionality."""
 
-import pytest
 import time
 from socrates_nexus.utils.cache import TTLCache
 
@@ -64,13 +63,13 @@ def test_ttl_cache_expiry():
         call_count += 1
         return x * 2
 
-    result1 = expensive_function(5)
+    expensive_function(5)
     assert call_count == 1
 
     # Wait for cache to expire
     time.sleep(1.5)
 
-    result2 = expensive_function(5)
+    expensive_function(5)
     assert call_count == 2  # Should execute again after expiry
 
 

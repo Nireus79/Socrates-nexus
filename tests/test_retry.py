@@ -1,7 +1,5 @@
 """Tests for retry logic and exponential backoff."""
 
-import pytest
-import time
 from socrates_nexus.retry import RetryConfig, exponential_backoff
 
 

@@ -1,10 +1,10 @@
 """Anthropic Claude provider for Socrates Nexus."""
 
 import time
-from typing import Callable, Optional
+from typing import Callable
 
-from ..models import LLMConfig, ChatResponse, TokenUsage
-from ..retry import retry_with_backoff, RetryConfig
+from ..models import LLMConfig, ChatResponse
+from ..retry import retry_with_backoff
 from ..streaming import StreamHandler, AsyncStreamHandler
 from ..exceptions import (
     RateLimitError,
