@@ -3,11 +3,22 @@ LangChain Integration for Socrates Nexus.
 
 Provides SocratesNexusLLM as a LangChain-compatible LLM provider
 with multi-provider support and automatic retry logic.
+
+Requires: pip install langchain>=0.1.0
 """
 
 from typing import Any, List, Optional
-from langchain.llms.base import LLM
-from langchain.callbacks.manager import CallbackManagerForLLMRun
+
+try:
+    from langchain.llms.base import LLM
+    from langchain.callbacks.manager import CallbackManagerForLLMRun
+    HAS_LANGCHAIN = True
+except ImportError:
+    HAS_LANGCHAIN = False
+    # Create dummy base class for type checking
+    class LLM:  # type: ignore
+        pass
+
 from socrates_nexus import LLMClient, LLMConfig
 
 
