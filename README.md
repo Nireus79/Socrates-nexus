@@ -1,4 +1,4 @@
-# Socrates Nexus
+# Socratic Nexus
 
 **Universal LLM client for production** - Works with Claude, GPT-4, Gemini, Llama, and any LLM.
 
