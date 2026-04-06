@@ -113,3 +113,27 @@ def test_client_add_usage_callback():
     # Should not raise an error
     client.add_usage_callback(test_callback)
     # Callback was registered (actual invocation requires real API call)
+
+
+def test_client_cache_disabled():
+    """Test client with response caching disabled."""
+    config = LLMConfig(
+        provider="anthropic",
+        model="claude-opus",
+        api_key="test-key",
+        cache_responses=False,
+    )
+    client = LLMClient(config=config)
+    assert client._cache is None
+
+
+def test_client_cache_enabled():
+    """Test client with response caching enabled."""
+    config = LLMConfig(
+        provider="anthropic",
+        model="claude-opus",
+        api_key="test-key",
+        cache_responses=True,
+    )
+    client = LLMClient(config=config)
+    assert client._cache is not None
