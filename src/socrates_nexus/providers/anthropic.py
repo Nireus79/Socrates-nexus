@@ -1,7 +1,10 @@
 """Anthropic Claude provider for Socrates Nexus."""
 
+import logging
 import time
 from typing import Callable
+
+logger = logging.getLogger(__name__)
 
 from ..models import LLMConfig, ChatResponse
 from ..retry import retry_with_backoff
@@ -42,11 +45,13 @@ class AnthropicProvider(BaseProvider):
                 import anthropic
 
                 self._client = anthropic.Anthropic(api_key=self.config.api_key)
-            except ImportError:
+            except ImportError as e:
+                logger.error(f"anthropic package not installed: {e}")
                 raise ProviderError(
                     "anthropic package is required. Install with: pip install 'socrates-nexus[anthropic]'"
                 )
             except Exception as e:
+                logger.error(f"Failed to initialize Anthropic client: {e}", exc_info=True)
                 raise AuthenticationError(f"Failed to initialize Anthropic client: {str(e)}")
 
         return self._client
@@ -59,11 +64,13 @@ class AnthropicProvider(BaseProvider):
                 import anthropic
 
                 self._async_client = anthropic.AsyncAnthropic(api_key=self.config.api_key)
-            except ImportError:
+            except ImportError as e:
+                logger.error(f"anthropic package not installed: {e}")
                 raise ProviderError(
                     "anthropic package is required. Install with: pip install 'socrates-nexus[anthropic]'"
                 )
             except Exception as e:
+                logger.error(f"Failed to initialize async Anthropic client: {e}", exc_info=True)
                 raise AuthenticationError(f"Failed to initialize async Anthropic client: {str(e)}")
 
         return self._async_client
@@ -96,14 +103,21 @@ class AnthropicProvider(BaseProvider):
             temperature = kwargs.get("temperature", self.config.temperature)
             top_p = kwargs.get("top_p", self.config.top_p)
 
+            # Build API call parameters
+            api_params = {
+                "model": self.config.model,
+                "max_tokens": max_tokens,
+                "messages": [{"role": "user", "content": message}],
+            }
+
+            # Only pass one sampling parameter (prefer temperature)
+            if temperature is not None:
+                api_params["temperature"] = temperature
+            elif top_p is not None:
+                api_params["top_p"] = top_p
+
             # Call Claude API
-            response = self.client.messages.create(
-                model=self.config.model,
-                max_tokens=max_tokens,
-                temperature=temperature,
-                top_p=top_p,
-                messages=[{"role": "user", "content": message}],
-            )
+            response = self.client.messages.create(**api_params)
 
             # Calculate latency
             latency_ms = (time.time() - start_time) * 1000
@@ -155,13 +169,20 @@ class AnthropicProvider(BaseProvider):
             temperature = kwargs.get("temperature", self.config.temperature)
             top_p = kwargs.get("top_p", self.config.top_p)
 
-            response = await self.async_client.messages.create(
-                model=self.config.model,
-                max_tokens=max_tokens,
-                temperature=temperature,
-                top_p=top_p,
-                messages=[{"role": "user", "content": message}],
-            )
+            # Build API call parameters
+            api_params = {
+                "model": self.config.model,
+                "max_tokens": max_tokens,
+                "messages": [{"role": "user", "content": message}],
+            }
+
+            # Only pass one sampling parameter (prefer temperature)
+            if temperature is not None:
+                api_params["temperature"] = temperature
+            elif top_p is not None:
+                api_params["top_p"] = top_p
+
+            response = await self.async_client.messages.create(**api_params)
 
             latency_ms = (time.time() - start_time) * 1000
 
@@ -205,13 +226,20 @@ class AnthropicProvider(BaseProvider):
             temperature = kwargs.get("temperature", self.config.temperature)
             top_p = kwargs.get("top_p", self.config.top_p)
 
-            with self.client.messages.stream(
-                model=self.config.model,
-                max_tokens=max_tokens,
-                temperature=temperature,
-                top_p=top_p,
-                messages=[{"role": "user", "content": message}],
-            ) as stream:
+            # Build API call parameters
+            api_params = {
+                "model": self.config.model,
+                "max_tokens": max_tokens,
+                "messages": [{"role": "user", "content": message}],
+            }
+
+            # Only pass one sampling parameter (prefer temperature)
+            if temperature is not None:
+                api_params["temperature"] = temperature
+            elif top_p is not None:
+                api_params["top_p"] = top_p
+
+            with self.client.messages.stream(**api_params) as stream:
                 for text in stream.text_stream:
                     handler.handle_chunk(text)
 
@@ -261,13 +289,20 @@ class AnthropicProvider(BaseProvider):
             temperature = kwargs.get("temperature", self.config.temperature)
             top_p = kwargs.get("top_p", self.config.top_p)
 
-            async with self.async_client.messages.stream(
-                model=self.config.model,
-                max_tokens=max_tokens,
-                temperature=temperature,
-                top_p=top_p,
-                messages=[{"role": "user", "content": message}],
-            ) as stream:
+            # Build API call parameters
+            api_params = {
+                "model": self.config.model,
+                "max_tokens": max_tokens,
+                "messages": [{"role": "user", "content": message}],
+            }
+
+            # Only pass one sampling parameter (prefer temperature)
+            if temperature is not None:
+                api_params["temperature"] = temperature
+            elif top_p is not None:
+                api_params["top_p"] = top_p
+
+            async with self.async_client.messages.stream(**api_params) as stream:
                 async for text in stream.text_stream:
                     await handler.handle_chunk(text)
 

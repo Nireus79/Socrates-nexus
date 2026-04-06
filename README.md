@@ -1,4 +1,4 @@
-# socrates-nexus
+# Socratic Nexus (socrates-nexus)
 
 Universal LLM abstraction layer providing unified access to multiple AI providers
 

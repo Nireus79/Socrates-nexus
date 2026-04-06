@@ -1,9 +1,9 @@
 """OpenAI GPT provider for Socrates Nexus."""
 
 import time
-from typing import Callable
+from typing import Callable, Union, List, Any
 
-from ..models import LLMConfig, ChatResponse
+from ..models import LLMConfig, ChatResponse, ImageContent, TextContent
 from ..retry import retry_with_backoff
 from ..streaming import StreamHandler, AsyncStreamHandler
 from ..exceptions import (
@@ -13,6 +13,7 @@ from ..exceptions import (
     InvalidRequestError,
     ContextLengthExceededError,
 )
+from ..vision import VisionMessage, VisionProcessor
 from .base import BaseProvider
 
 
@@ -68,6 +69,51 @@ class OpenAIProvider(BaseProvider):
 
         return self._async_client
 
+    def _build_vision_content(self, vision_msg: VisionMessage) -> List[Any]:
+        """
+        Build OpenAI-compatible vision content blocks.
+
+        Args:
+            vision_msg: VisionMessage with text and images
+
+        Returns:
+            List of content blocks for OpenAI API
+        """
+        contents = []
+
+        # Add text
+        if vision_msg.text:
+            contents.append({"type": "text", "text": vision_msg.text})
+
+        # Add images
+        if vision_msg.images:
+            detail = "high"  # Can be made configurable
+            for image_source in vision_msg.images:
+                image_content = VisionProcessor.prepare_image(image_source, detail)
+
+                if image_content.source.startswith("data:"):
+                    # Base64 encoded
+                    _, data = image_content.source.split(",", 1)
+                    contents.append(
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": f"data:{image_content.media_type};base64,{data}",
+                                "detail": detail,
+                            },
+                        }
+                    )
+                else:
+                    # URL
+                    contents.append(
+                        {
+                            "type": "image_url",
+                            "image_url": {"url": image_content.source, "detail": detail},
+                        }
+                    )
+
+        return contents
+
     @retry_with_backoff(
         max_attempts=3, backoff_factor=2.0, initial_delay=1.0, max_delay=32.0, jitter=True
     )
@@ -75,9 +121,14 @@ class OpenAIProvider(BaseProvider):
         """
         Send a chat message to OpenAI and get response.
 
+        Supports both text and multimodal (image+text) messages.
+
         Args:
-            message: User message
-            **kwargs: Additional parameters (temperature, max_tokens, etc.)
+            message: User message (text only) or ignored if vision_message provided
+            **kwargs: Additional parameters including:
+                - temperature, max_tokens, top_p: LLM parameters
+                - vision_message: VisionMessage for multimodal requests
+                - image_detail: "low" or "high" for vision models
 
         Returns:
             Chat response with content and usage information
@@ -88,13 +139,20 @@ class OpenAIProvider(BaseProvider):
             max_tokens = kwargs.get("max_tokens") or self.config.max_tokens
             temperature = kwargs.get("temperature", self.config.temperature)
             top_p = kwargs.get("top_p", self.config.top_p)
+            vision_message = kwargs.get("vision_message")
+
+            # Build message content
+            if vision_message and isinstance(vision_message, VisionMessage):
+                content = self._build_vision_content(vision_message)
+            else:
+                content = message
 
             # Build parameters dict
             params = {
                 "model": self.config.model,
                 "temperature": temperature,
                 "top_p": top_p,
-                "messages": [{"role": "user", "content": message}],
+                "messages": [{"role": "user", "content": content}],
             }
 
             if max_tokens:
@@ -129,9 +187,11 @@ class OpenAIProvider(BaseProvider):
         """
         Async version of chat.
 
+        Supports both text and multimodal (image+text) messages.
+
         Args:
-            message: User message
-            **kwargs: Additional parameters
+            message: User message (text only) or ignored if vision_message provided
+            **kwargs: Additional parameters including vision_message and image_detail
 
         Returns:
             Chat response with content and usage information
@@ -142,12 +202,19 @@ class OpenAIProvider(BaseProvider):
             max_tokens = kwargs.get("max_tokens") or self.config.max_tokens
             temperature = kwargs.get("temperature", self.config.temperature)
             top_p = kwargs.get("top_p", self.config.top_p)
+            vision_message = kwargs.get("vision_message")
+
+            # Build message content
+            if vision_message and isinstance(vision_message, VisionMessage):
+                content = self._build_vision_content(vision_message)
+            else:
+                content = message
 
             params = {
                 "model": self.config.model,
                 "temperature": temperature,
                 "top_p": top_p,
-                "messages": [{"role": "user", "content": message}],
+                "messages": [{"role": "user", "content": content}],
             }
 
             if max_tokens:
@@ -181,10 +248,12 @@ class OpenAIProvider(BaseProvider):
         """
         Stream chat response from OpenAI.
 
+        Supports both text and multimodal (image+text) messages.
+
         Args:
-            message: User message
+            message: User message (text only) or ignored if vision_message provided
             on_chunk: Callback for each streamed chunk
-            **kwargs: Additional parameters
+            **kwargs: Additional parameters including vision_message and image_detail
 
         Returns:
             Chat response with accumulated content and usage
@@ -196,12 +265,19 @@ class OpenAIProvider(BaseProvider):
             max_tokens = kwargs.get("max_tokens") or self.config.max_tokens
             temperature = kwargs.get("temperature", self.config.temperature)
             top_p = kwargs.get("top_p", self.config.top_p)
+            vision_message = kwargs.get("vision_message")
+
+            # Build message content
+            if vision_message and isinstance(vision_message, VisionMessage):
+                content = self._build_vision_content(vision_message)
+            else:
+                content = message
 
             params = {
                 "model": self.config.model,
                 "temperature": temperature,
                 "top_p": top_p,
-                "messages": [{"role": "user", "content": message}],
+                "messages": [{"role": "user", "content": content}],
                 "stream": True,
             }
 
@@ -251,10 +327,12 @@ class OpenAIProvider(BaseProvider):
         """
         Async version of stream.
 
+        Supports both text and multimodal (image+text) messages.
+
         Args:
-            message: User message
+            message: User message (text only) or ignored if vision_message provided
             on_chunk: Callback for each chunk
-            **kwargs: Additional parameters
+            **kwargs: Additional parameters including vision_message and image_detail
 
         Returns:
             Chat response with accumulated content and usage
@@ -266,12 +344,19 @@ class OpenAIProvider(BaseProvider):
             max_tokens = kwargs.get("max_tokens") or self.config.max_tokens
             temperature = kwargs.get("temperature", self.config.temperature)
             top_p = kwargs.get("top_p", self.config.top_p)
+            vision_message = kwargs.get("vision_message")
+
+            # Build message content
+            if vision_message and isinstance(vision_message, VisionMessage):
+                content = self._build_vision_content(vision_message)
+            else:
+                content = message
 
             params = {
                 "model": self.config.model,
                 "temperature": temperature,
                 "top_p": top_p,
-                "messages": [{"role": "user", "content": message}],
+                "messages": [{"role": "user", "content": content}],
                 "stream": True,
             }
 

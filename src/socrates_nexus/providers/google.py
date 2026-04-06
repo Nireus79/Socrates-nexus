@@ -1,7 +1,9 @@
 """Google Gemini provider for Socrates Nexus."""
 
 import time
-from typing import Callable
+from typing import Callable, Any, List
+from io import BytesIO
+from pathlib import Path
 
 from ..models import LLMConfig, ChatResponse
 from ..retry import retry_with_backoff
@@ -12,6 +14,8 @@ from ..exceptions import (
     ProviderError,
     InvalidRequestError,
 )
+from ..vision import VisionMessage, VisionProcessor
+from ..utils.images import is_image_url, is_image_path, load_image_from_url
 from .base import BaseProvider
 
 
@@ -50,6 +54,55 @@ class GoogleProvider(BaseProvider):
 
         return self._model
 
+    def _build_vision_content(self, vision_msg: VisionMessage) -> List[Any]:
+        """
+        Build Google-compatible vision content.
+
+        Args:
+            vision_msg: VisionMessage with text and images
+
+        Returns:
+            List of content items for Gemini API
+        """
+        try:
+            from PIL import Image
+        except ImportError:
+            raise ProviderError(
+                "Pillow is required for vision support. Install with: pip install 'socrates-nexus[vision]'"
+            )
+
+        contents = []
+
+        # Add text
+        if vision_msg.text:
+            contents.append(vision_msg.text)
+
+        # Add images
+        if vision_msg.images:
+            for image_source in vision_msg.images:
+                try:
+                    if is_image_url(image_source):
+                        # Download and open URL image
+                        image_bytes = load_image_from_url(image_source)
+                        img = Image.open(BytesIO(image_bytes))
+                    elif is_image_path(image_source):
+                        # Open file path image
+                        img = Image.open(image_source)
+                    elif isinstance(image_source, bytes):
+                        # Open bytes image
+                        img = Image.open(BytesIO(image_source))
+                    else:
+                        raise ValueError(f"Invalid image source: {image_source}")
+
+                    contents.append(img)
+
+                except Exception as e:
+                    raise ProviderError(
+                        f"Failed to process image '{image_source}': {str(e)}"
+                    )
+
+        return contents
+
     @retry_with_backoff(
         max_attempts=3, backoff_factor=2.0, initial_delay=1.0, max_delay=32.0, jitter=True
     )
@@ -57,9 +110,13 @@ class GoogleProvider(BaseProvider):
         """
         Send a chat message to Gemini and get response.
 
+        Supports both text and multimodal (image+text) messages.
+
         Args:
-            message: User message
-            **kwargs: Additional parameters (temperature, max_tokens, etc.)
+            message: User message (text only) or ignored if vision_message provided
+            **kwargs: Additional parameters including:
+                - temperature, max_tokens, top_p: LLM parameters
+                - vision_message: VisionMessage for multimodal requests
 
         Returns:
             Chat response with content and usage information
@@ -77,8 +134,15 @@ class GoogleProvider(BaseProvider):
                     kwargs.get("max_tokens") or self.config.max_tokens
                 )
 
+            # Build message content
+            vision_message = kwargs.get("vision_message")
+            if vision_message and isinstance(vision_message, VisionMessage):
+                content = self._build_vision_content(vision_message)
+            else:
+                content = message
+
             response = self.model.generate_content(
-                message,
+                content,
                 generation_config=generation_config,
             )
 
@@ -117,9 +181,11 @@ class GoogleProvider(BaseProvider):
         """
         Async version of chat.
 
+        Supports both text and multimodal (image+text) messages.
+
         Args:
-            message: User message
-            **kwargs: Additional parameters
+            message: User message (text only) or ignored if vision_message provided
+            **kwargs: Additional parameters including vision_message
 
         Returns:
             Chat response with content and usage information
@@ -137,8 +203,15 @@ class GoogleProvider(BaseProvider):
                     kwargs.get("max_tokens") or self.config.max_tokens
                 )
 
+            # Build message content
+            vision_message = kwargs.get("vision_message")
+            if vision_message and isinstance(vision_message, VisionMessage):
+                content = self._build_vision_content(vision_message)
+            else:
+                content = message
+
             response = await self.model.generate_content_async(
-                message,
+                content,
                 generation_config=generation_config,
             )
 
@@ -176,10 +249,12 @@ class GoogleProvider(BaseProvider):
         """
         Stream chat response from Gemini.
 
+        Supports both text and multimodal (image+text) messages.
+
         Args:
-            message: User message
+            message: User message (text only) or ignored if vision_message provided
             on_chunk: Callback for each streamed chunk
-            **kwargs: Additional parameters
+            **kwargs: Additional parameters including vision_message
 
         Returns:
             Chat response with accumulated content and usage
@@ -198,8 +273,15 @@ class GoogleProvider(BaseProvider):
                     kwargs.get("max_tokens") or self.config.max_tokens
                 )
 
+            # Build message content
+            vision_message = kwargs.get("vision_message")
+            if vision_message and isinstance(vision_message, VisionMessage):
+                content = self._build_vision_content(vision_message)
+            else:
+                content = message
+
             response = self.model.generate_content(
-                message,
+                content,
                 generation_config=generation_config,
                 stream=True,
             )
@@ -244,10 +326,12 @@ class GoogleProvider(BaseProvider):
         """
         Async version of stream.
 
+        Supports both text and multimodal (image+text) messages.
+
         Args:
-            message: User message
+            message: User message (text only) or ignored if vision_message provided
             on_chunk: Callback for each chunk
-            **kwargs: Additional parameters
+            **kwargs: Additional parameters including vision_message
 
         Returns:
             Chat response with accumulated content and usage
@@ -266,8 +350,15 @@ class GoogleProvider(BaseProvider):
                     kwargs.get("max_tokens") or self.config.max_tokens
                 )
 
+            # Build message content
+            vision_message = kwargs.get("vision_message")
+            if vision_message and isinstance(vision_message, VisionMessage):
+                content = self._build_vision_content(vision_message)
+            else:
+                content = message
+
             response = await self.model.generate_content_async(
-                message,
+                content,
                 generation_config=generation_config,
                 stream=True,
             )
