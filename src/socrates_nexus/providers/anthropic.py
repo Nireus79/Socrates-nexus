@@ -4,8 +4,6 @@ import logging
 import time
 from typing import Callable
 
-logger = logging.getLogger(__name__)
-
 from ..models import LLMConfig, ChatResponse
 from ..retry import retry_with_backoff
 from ..streaming import StreamHandler, AsyncStreamHandler
@@ -16,6 +14,8 @@ from ..exceptions import (
     InvalidRequestError,
 )
 from .base import BaseProvider
+
+logger = logging.getLogger(__name__)
 
 
 class AnthropicProvider(BaseProvider):

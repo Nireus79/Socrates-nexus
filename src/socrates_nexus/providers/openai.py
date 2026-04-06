@@ -1,9 +1,9 @@
 """OpenAI GPT provider for Socrates Nexus."""
 
 import time
-from typing import Callable, Union, List, Any
+from typing import Callable, List, Any
 
-from ..models import LLMConfig, ChatResponse, ImageContent, TextContent
+from ..models import LLMConfig, ChatResponse
 from ..retry import retry_with_backoff
 from ..streaming import StreamHandler, AsyncStreamHandler
 from ..exceptions import (

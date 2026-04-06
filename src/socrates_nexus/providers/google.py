@@ -3,7 +3,6 @@
 import time
 from typing import Callable, Any, List
 from io import BytesIO
-from pathlib import Path
 
 from ..models import LLMConfig, ChatResponse
 from ..retry import retry_with_backoff
@@ -14,7 +13,7 @@ from ..exceptions import (
     ProviderError,
     InvalidRequestError,
 )
-from ..vision import VisionMessage, VisionProcessor
+from ..vision import VisionMessage
 from ..utils.images import is_image_url, is_image_path, load_image_from_url
 from .base import BaseProvider
 
