@@ -15,6 +15,12 @@ __author__ = "Socrates Nexus Contributors"
 
 from .client import LLMClient
 from .async_client import AsyncLLMClient
+from .documentation import (
+    APIDocumentation,
+    APIDocumentationGenerator,
+    EndpointDoc,
+    ParameterDoc,
+)
 from .models import ChatResponse, TokenUsage, LLMConfig, ImageContent, TextContent
 from .exceptions import (
     LLMError,
@@ -41,6 +47,11 @@ __all__ = [
     "VisionMessage",
     "VisionProcessor",
     "VisionCapabilities",
+    # Documentation
+    "APIDocumentation",
+    "APIDocumentationGenerator",
+    "EndpointDoc",
+    "ParameterDoc",
     # Exceptions
     "LLMError",
     "NexusError",
