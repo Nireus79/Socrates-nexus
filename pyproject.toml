@@ -134,6 +134,26 @@ markers = [
     "requires_api: Tests requiring valid API keys",
 ]
 
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = false
+warn_unused_configs = true
+ignore_missing_imports = true
+disallow_incomplete_defs = false
+disallow_untyped_defs = false
+check_untyped_defs = false
+strict_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+plugins = ["pydantic.mypy"]
+
+[[tool.mypy.overrides]]
+module = [
+    "socrates_nexus.integrations.*",
+    "tests.*",
+]
+ignore_errors = true
+
 [tool.coverage.run]
 source = ["socrates_nexus"]
 branch = true
