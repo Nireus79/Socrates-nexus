@@ -148,3 +148,32 @@ async def test_async_client_config_defaults():
     assert client.config.retry_backoff_factor == 2.0
     assert client.config.timeout == 30
     assert client.config.cache_responses is True
+
+
+@pytest.mark.asyncio
+async def test_async_client_provider_map():
+    """Test that provider map contains expected providers."""
+    assert "anthropic" in AsyncLLMClient.PROVIDER_MAP
+    assert "openai" in AsyncLLMClient.PROVIDER_MAP
+    assert "google" in AsyncLLMClient.PROVIDER_MAP
+    assert "ollama" in AsyncLLMClient.PROVIDER_MAP
+
+
+@pytest.mark.asyncio
+async def test_async_client_cache_initialization():
+    """Test that cache is initialized when enabled."""
+    config = LLMConfig(
+        provider="anthropic", model="claude-opus", api_key="test-key", cache_responses=True
+    )
+    client = AsyncLLMClient(config=config)
+    assert client._cache is not None
+
+
+@pytest.mark.asyncio
+async def test_async_client_cache_disabled():
+    """Test that cache is not initialized when disabled."""
+    config = LLMConfig(
+        provider="anthropic", model="claude-opus", api_key="test-key", cache_responses=False
+    )
+    client = AsyncLLMClient(config=config)
+    assert client._cache is None
