@@ -86,7 +86,7 @@ class InsightExtractor:
             content = response.content[0].text if response.content else ""
             try:
                 data = json.loads(content)
-            except:
+            except (json.JSONDecodeError, ValueError, TypeError):
                 return []
             if isinstance(data, dict):
                 data = [data]
@@ -102,7 +102,7 @@ class InsightExtractor:
                             source=item.get("source", ""),
                         ))
             return insights
-        except:
+        except Exception:
             return []
 
 class InsightAnalyzer:

@@ -206,6 +206,6 @@ class AsyncLLMClient:
             try:
                 question = await generator.agenerate_question(config, response)
                 questions.append(question.to_dict())
-            except:
+            except Exception:
                 continue
         return questions

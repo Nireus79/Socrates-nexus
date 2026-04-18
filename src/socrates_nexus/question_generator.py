@@ -2,13 +2,12 @@ from enum import Enum
 from dataclasses import dataclass, field, asdict
 from typing import Any, Dict, List, Optional, Literal
 from datetime import datetime
-import json
 import logging
 
 from .client import LLMClient
 from .async_client import AsyncLLMClient
 from .models import ChatResponse
-from .exceptions import LLMError, InvalidRequestError
+from .exceptions import InvalidRequestError
 
 logger = logging.getLogger(__name__)
 
