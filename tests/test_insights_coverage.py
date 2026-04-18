@@ -1,10 +1,7 @@
-import json
 import pytest
-from unittest.mock import Mock
 
 from socrates_nexus.insights import Insight, InsightExtractor, InsightAnalyzer
 from socrates_nexus.exceptions import InvalidRequestError
-from socrates_nexus.models import ChatResponse, TextContent
 
 class TestInsight:
     def test_insight_creation(self):

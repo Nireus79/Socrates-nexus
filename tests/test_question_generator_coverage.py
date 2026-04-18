@@ -1,10 +1,7 @@
-import pytest
-from unittest.mock import Mock
 
 from socrates_nexus.question_generator import (
     QuestionLevel, QuestionType, QuestionConfig, SocraticQuestion, QuestionGenerator
 )
-from socrates_nexus.exceptions import InvalidRequestError
 
 class TestQuestionLevel:
     def test_levels(self):
