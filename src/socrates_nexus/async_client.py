@@ -182,3 +182,30 @@ class AsyncLLMClient:
             callback: Function to call with TokenUsage
         """
         self.provider.add_usage_callback(callback)
+
+    async def aextract_insights(self, text: str, context=None, max_insights: int = 10, min_confidence: float = 0.5):
+        """Extract insights from text (async)."""
+        from .insights import InsightExtractor
+        extractor = InsightExtractor(async_client=self)
+        insights = await extractor.aextract_insights(text, context=context, max_insights=max_insights, min_confidence=min_confidence)
+        return [insight.to_dict() for insight in insights]
+
+    async def agenerate_socratic_question(self, config, response=None):
+        """Generate a Socratic question (async)."""
+        from .question_generator import QuestionGenerator
+        generator = QuestionGenerator(async_client=self)
+        question = await generator.agenerate_question(config, response=response)
+        return question.to_dict()
+
+    async def agenerate_multiple_questions(self, config, count: int = 3, response=None):
+        """Generate multiple Socratic questions (async)."""
+        from .question_generator import QuestionGenerator
+        generator = QuestionGenerator(async_client=self)
+        questions = []
+        for i in range(count):
+            try:
+                question = await generator.agenerate_question(config, response)
+                questions.append(question.to_dict())
+            except:
+                continue
+        return questions

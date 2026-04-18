@@ -10,7 +10,7 @@ Works with Claude, GPT-4, Gemini, Llama, and any LLM with production patterns:
 - Type hints throughout
 """
 
-__version__ = "0.1.0"
+__version__ = "0.4.0"
 __author__ = "Socrates Nexus Contributors"
 
 from .client import LLMClient
@@ -47,6 +47,8 @@ from .exceptions import (
     ProviderError,
 )
 from .vision import VisionMessage, VisionProcessor, VisionCapabilities
+from .insights import Insight, InsightPattern, InsightExtractor, InsightAnalyzer
+from .question_generator import SocraticQuestion, QuestionConfig, QuestionGenerator, QuestionLevel, QuestionType
 
 __all__ = [
     "LLMClient",
@@ -86,4 +88,15 @@ __all__ = [
     "ContextLengthExceededError",
     "ModelNotFoundError",
     "ProviderError",
+    # Insight Extraction & Analysis
+    "Insight",
+    "InsightPattern",
+    "InsightExtractor",
+    "InsightAnalyzer",
+    # Question Generation
+    "SocraticQuestion",
+    "QuestionConfig",
+    "QuestionGenerator",
+    "QuestionLevel",
+    "QuestionType",
 ]
