@@ -26,7 +26,7 @@ class TestQuestionConfig:
 
 class TestSocraticQuestion:
     def test_creation(self):
-        q = SocraticQuestion(text="q?", level=QuestionLevel.REMEMBER, question_type=QuestionType.CLARIFICATION)
+        q = SocraticQuestion(question_text="q?", cognitive_level=QuestionLevel.REMEMBER, question_type=QuestionType.CLARIFICATION, topic="test", learning_objective="test")
         assert q.text == "q?"
 
 class TestQuestionGenerator:
