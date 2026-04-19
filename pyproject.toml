@@ -100,19 +100,19 @@ Changelog = "https://github.com/Nireus79/socrates-nexus/releases"
 
 [tool.setuptools]
 packages = [
-    "socrates_nexus",
-    "socrates_nexus.providers",
-    "socrates_nexus.utils",
-    "socrates_nexus.integrations",
-    "socrates_nexus.integrations.openclaw",
-    "socrates_nexus.integrations.langchain",
+    "socratic_nexus",
+    "socratic_nexus.providers",
+    "socratic_nexus.utils",
+    "socratic_nexus.integrations",
+    "socratic_nexus.integrations.openclaw",
+    "socratic_nexus.integrations.langchain",
 ]
 
 [tool.setuptools.package-dir]
 "" = "src"
 
 [tool.setuptools.package-data]
-socrates_nexus = ["py.typed"]
+socratic_nexus = ["py.typed"]
 
 [tool.black]
 line-length = 100
@@ -149,13 +149,13 @@ plugins = ["pydantic.mypy"]
 
 [[tool.mypy.overrides]]
 module = [
-    "socrates_nexus.integrations.*",
+    "socratic_nexus.integrations.*",
     "tests.*",
 ]
 ignore_errors = true
 
 [tool.coverage.run]
-source = ["socrates_nexus"]
+source = ["socratic_nexus"]
 branch = true
 omit = [
     "*/tests/*",
