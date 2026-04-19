@@ -66,7 +66,7 @@ class SocratesNexusLLM(LLM):
     @property
     def _llm_type(self) -> str:
         """Return LLM type identifier."""
-        return "socrates_nexus"
+        return "socratic_nexus"
 
     def _call(
         self,

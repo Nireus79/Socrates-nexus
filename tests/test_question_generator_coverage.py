@@ -5,7 +5,11 @@ from unittest.mock import Mock
 import json
 
 from socratic_nexus.question_generator import (
-    QuestionLevel, QuestionType, QuestionConfig, SocraticQuestion, QuestionGenerator
+    QuestionLevel,
+    QuestionType,
+    QuestionConfig,
+    SocraticQuestion,
+    QuestionGenerator,
 )
 from socratic_nexus.exceptions import InvalidRequestError
 from socratic_nexus.models import ChatResponse, TokenUsage
@@ -64,10 +68,7 @@ class TestQuestionConfig:
 
     def test_config_defaults(self):
         """Test QuestionConfig with default values."""
-        config = QuestionConfig(
-            learning_objectives=["test"],
-            current_topic="test"
-        )
+        config = QuestionConfig(learning_objectives=["test"], current_topic="test")
         assert config.difficulty == "intermediate"
         assert config.conversation_history == []
 
@@ -121,7 +122,7 @@ class TestQuestionGenerator:
         return QuestionConfig(
             learning_objectives=["understand recursion"],
             current_topic="recursion",
-            difficulty="intermediate"
+            difficulty="intermediate",
         )
 
     def test_generator_initialization(self, generator):
@@ -138,11 +139,13 @@ class TestQuestionGenerator:
             cost_usd=0.001,
         )
         mock_response = ChatResponse(
-            content=json.dumps({
-                "question_text": "Why does recursion work?",
-                "cognitive_level": "analyze",
-                "question_type": "probing",
-            }),
+            content=json.dumps(
+                {
+                    "question_text": "Why does recursion work?",
+                    "cognitive_level": "analyze",
+                    "question_type": "probing",
+                }
+            ),
             provider="anthropic",
             model="claude-opus",
             usage=mock_usage,
@@ -161,11 +164,13 @@ class TestQuestionGenerator:
             cost_usd=0.001,
         )
         mock_response = ChatResponse(
-            content=json.dumps({
-                "question_text": "Follow-up question",
-                "cognitive_level": "apply",
-                "question_type": "guiding",
-            }),
+            content=json.dumps(
+                {
+                    "question_text": "Follow-up question",
+                    "cognitive_level": "apply",
+                    "question_type": "guiding",
+                }
+            ),
             provider="anthropic",
             model="claude-opus",
             usage=mock_usage,
@@ -173,8 +178,7 @@ class TestQuestionGenerator:
         mock_client.chat.return_value = mock_response
 
         question = generator.generate_question(
-            sample_config,
-            response="Recursion is when a function calls itself"
+            sample_config, response="Recursion is when a function calls itself"
         )
         assert question is None or question is not None
 

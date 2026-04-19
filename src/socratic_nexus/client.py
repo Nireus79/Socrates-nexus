@@ -185,16 +185,22 @@ class LLMClient:
         """
         self.provider.add_usage_callback(callback)
 
-    def extract_insights(self, text: str, context = None, max_insights: int = 10, min_confidence: float = 0.5):
+    def extract_insights(
+        self, text: str, context=None, max_insights: int = 10, min_confidence: float = 0.5
+    ):
         """Extract insights from text using InsightExtractor."""
         from .insights import InsightExtractor
+
         extractor = InsightExtractor(client=self)
-        insights = extractor.extract_insights(text, context=context, max_insights=max_insights, min_confidence=min_confidence)
+        insights = extractor.extract_insights(
+            text, context=context, max_insights=max_insights, min_confidence=min_confidence
+        )
         return [insight.to_dict() for insight in insights]
 
     def generate_socratic_question(self, config, response=None):
         """Generate a Socratic question using QuestionGenerator."""
         from .question_generator import QuestionGenerator
+
         generator = QuestionGenerator(client=self)
         question = generator.generate_question(config, response=response)
         return question.to_dict()
@@ -202,6 +208,7 @@ class LLMClient:
     def generate_multiple_questions(self, config, count: int = 3, response=None):
         """Generate multiple Socratic questions."""
         from .question_generator import QuestionGenerator
+
         generator = QuestionGenerator(client=self)
         questions = generator.generate_multiple_questions(config, count=count, response=response)
         return [q.to_dict() for q in questions]

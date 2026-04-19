@@ -11,6 +11,7 @@ from .exceptions import InvalidRequestError
 
 logger = logging.getLogger(__name__)
 
+
 class QuestionLevel(str, Enum):
     REMEMBER = "remember"
     UNDERSTAND = "understand"
@@ -19,6 +20,7 @@ class QuestionLevel(str, Enum):
     EVALUATE = "evaluate"
     CREATE = "create"
 
+
 class QuestionType(str, Enum):
     CLARIFICATION = "clarification"
     PROBING = "probing"
@@ -26,6 +28,7 @@ class QuestionType(str, Enum):
     CHALLENGING = "challenging"
     SYNTHESIS = "synthesis"
     ACTIVATION = "activation"
+
 
 @dataclass
 class QuestionConfig:
@@ -44,6 +47,7 @@ class QuestionConfig:
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
+
 
 @dataclass
 class SocraticQuestion:
@@ -75,8 +79,11 @@ class SocraticQuestion:
         q_dict["cognitive_level"] = self.cognitive_level.value
         return q_dict
 
+
 class QuestionGenerator:
-    def __init__(self, client: Optional[LLMClient] = None, async_client: Optional[AsyncLLMClient] = None) -> None:
+    def __init__(
+        self, client: Optional[LLMClient] = None, async_client: Optional[AsyncLLMClient] = None
+    ) -> None:
         self._client = client
         self._async_client = async_client
         self._question_history: List[str] = []
@@ -93,19 +100,23 @@ class QuestionGenerator:
             self._async_client = AsyncLLMClient()
         return self._async_client
 
-    def generate_question(self, config: QuestionConfig, response: Optional[str] = None) -> SocraticQuestion:
+    def generate_question(
+        self, config: QuestionConfig, response: Optional[str] = None
+    ) -> SocraticQuestion:
         if not config.learning_objectives:
             raise InvalidRequestError("Learning objectives required")
         if not config.current_topic:
             raise InvalidRequestError("Topic required")
-        
+
         prompt = f"Generate Socratic question on {config.current_topic}"
         llm_response = self.client.chat(prompt, system="Generate questions")
         question = self._parse_question_response(llm_response, config)
         self._question_history.append(question.question_text)
         return question
 
-    async def agenerate_question(self, config: QuestionConfig, response: Optional[str] = None) -> SocraticQuestion:
+    async def agenerate_question(
+        self, config: QuestionConfig, response: Optional[str] = None
+    ) -> SocraticQuestion:
         if not config.learning_objectives:
             raise InvalidRequestError("Learning objectives required")
         if not config.current_topic:
@@ -114,12 +125,16 @@ class QuestionGenerator:
         llm_response = await self.async_client.chat(prompt, system="Generate questions")
         return self._parse_question_response(llm_response, config)
 
-    def generate_multiple_questions(self, config: QuestionConfig, count: int = 3, response: Optional[str] = None) -> List[SocraticQuestion]:
+    def generate_multiple_questions(
+        self, config: QuestionConfig, count: int = 3, response: Optional[str] = None
+    ) -> List[SocraticQuestion]:
         if count < 1 or count > 10:
             raise InvalidRequestError("Count must be 1-10")
         return [self.generate_question(config, response) for _ in range(count)]
 
-    def _parse_question_response(self, response: ChatResponse, config: QuestionConfig) -> SocraticQuestion:
+    def _parse_question_response(
+        self, response: ChatResponse, config: QuestionConfig
+    ) -> SocraticQuestion:
         return SocraticQuestion(
             question_text="What is your understanding of this topic?",
             question_type=QuestionType.PROBING,

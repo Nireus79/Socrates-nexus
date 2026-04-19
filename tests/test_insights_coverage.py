@@ -21,7 +21,7 @@ class TestInsight:
             source="student response",
             importance="high",
             related_concepts=["recursion", "loops"],
-            requires_clarification=True
+            requires_clarification=True,
         )
         assert insight.text == "Key learning"
         assert insight.category == "concept"
@@ -30,30 +30,15 @@ class TestInsight:
 
     def test_insight_confidence_clamping(self):
         """Test that confidence is clamped to [0, 1] range."""
-        insight = Insight(
-            text="test",
-            category="test",
-            confidence=1.5,
-            source="test"
-        )
+        insight = Insight(text="test", category="test", confidence=1.5, source="test")
         assert insight.confidence == 1.0
 
-        insight2 = Insight(
-            text="test",
-            category="test",
-            confidence=-0.5,
-            source="test"
-        )
+        insight2 = Insight(text="test", category="test", confidence=-0.5, source="test")
         assert insight2.confidence == 0.0
 
     def test_insight_to_dict(self):
         """Test converting Insight to dictionary."""
-        insight = Insight(
-            text="test",
-            category="test",
-            confidence=0.8,
-            source="test"
-        )
+        insight = Insight(text="test", category="test", confidence=0.8, source="test")
         data = insight.to_dict()
         assert data["text"] == "test"
         assert data["confidence"] == 0.8
@@ -81,9 +66,9 @@ class TestInsightExtractor:
             cost_usd=0.001,
         )
         mock_response = ChatResponse(
-            content=json.dumps([
-                {"text": "insight1", "category": "concept", "confidence": 0.9, "source": "test"}
-            ]),
+            content=json.dumps(
+                [{"text": "insight1", "category": "concept", "confidence": 0.9, "source": "test"}]
+            ),
             provider="anthropic",
             model="claude-opus",
             usage=mock_usage,
@@ -126,10 +111,12 @@ class TestInsightExtractor:
             cost_usd=0.001,
         )
         mock_response = ChatResponse(
-            content=json.dumps([
-                {"text": f"insight{i}", "category": "c", "confidence": 0.8, "source": "t"}
-                for i in range(5)
-            ]),
+            content=json.dumps(
+                [
+                    {"text": f"insight{i}", "category": "c", "confidence": 0.8, "source": "t"}
+                    for i in range(5)
+                ]
+            ),
             provider="anthropic",
             model="claude-opus",
             usage=mock_usage,

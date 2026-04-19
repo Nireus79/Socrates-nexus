@@ -48,7 +48,13 @@ from .exceptions import (
 )
 from .vision import VisionMessage, VisionProcessor, VisionCapabilities
 from .insights import Insight, InsightPattern, InsightExtractor, InsightAnalyzer
-from .question_generator import SocraticQuestion, QuestionConfig, QuestionGenerator, QuestionLevel, QuestionType
+from .question_generator import (
+    SocraticQuestion,
+    QuestionConfig,
+    QuestionGenerator,
+    QuestionLevel,
+    QuestionType,
+)
 
 __all__ = [
     "LLMClient",
