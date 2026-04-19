@@ -47,7 +47,7 @@ jobs:
           pip install -e ".[dev,all]"
           pip install mypy
       - name: Type check with mypy
-        run: mypy src/socrates_nexus
+        run: mypy src/socratic_nexus
         continue-on-error: true
 
   security:
@@ -62,5 +62,5 @@ jobs:
         run: |
           pip install bandit
       - name: Run security check
-        run: bandit -r src/socrates_nexus
+        run: bandit -r src/socratic_nexus
         continue-on-error: true

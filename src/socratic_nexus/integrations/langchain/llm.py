@@ -27,7 +27,7 @@ except ImportError:
         pass
 
 
-from socrates_nexus import LLMClient, LLMConfig
+from socratic_nexus import LLMClient, LLMConfig
 
 
 class SocratesNexusLLM(LLM):
@@ -40,7 +40,7 @@ class SocratesNexusLLM(LLM):
     Supported providers: anthropic, openai, google, ollama
 
     Example:
-        >>> from socrates_nexus.integrations.langchain import SocratesNexusLLM
+        >>> from socratic_nexus.integrations.langchain import SocratesNexusLLM
         >>> from langchain.chains import LLMChain
         >>> from langchain.prompts import PromptTemplate
         >>>
